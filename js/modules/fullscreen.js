@@ -17,7 +17,6 @@ export function initFullscreen() {
 
   fullscreenBtn.addEventListener("click", toggleFullscreen);
 
-  // Update button text based on fullscreen state (optional)
   function updateButtonText() {
     if (document.fullscreenElement) {
       fullscreenBtn.innerHTML = "✖ Exit";

@@ -3,15 +3,14 @@ import { formatHMS } from "../utils/helpers.js";
 /**
  * Timer Module: manages countdown state, UI updates, and user interactions.
  */
+
 export function initTimer() {
-  // State
   let totalSeconds = 0;
   let remainingSeconds = 0;
   let timerInterval = null;
   let isRunning = false;
   let startMoment = null;
 
-  // DOM elements
   const remainingDisplay = document.getElementById("remainingDisplay");
   const progressFill = document.getElementById("progressFill");
   const progressPercent = document.getElementById("progressPercent");
@@ -27,7 +26,6 @@ export function initTimer() {
   const pauseBtn = document.getElementById("pauseTimerBtn");
   const resetBtn = document.getElementById("resetTimerBtn");
 
-  // Helper: update all UI elements from current state
   function refreshUI() {
     remainingDisplay.innerText = formatHMS(remainingSeconds);
     const percent =
@@ -68,7 +66,6 @@ export function initTimer() {
       infoEnd.innerText = "--:--:--";
     }
 
-    // status messages
     if (remainingSeconds === 0 && totalSeconds > 0) {
       statusMsg.innerText = "⛔ Exam finished. Press RESET to start new.";
     } else if (isRunning) {
@@ -89,14 +86,12 @@ export function initTimer() {
       statusMsg.innerText = "⚙️ Set duration above & start";
     }
 
-    // show/hide duration input row
     if (isRunning) {
       durationRow.classList.add("hidden");
     } else {
       durationRow.classList.remove("hidden");
     }
 
-    // auto‑stop when timer hits zero
     if (remainingSeconds <= 0 && totalSeconds > 0 && timerInterval) {
       stopTimer();
     }
@@ -198,13 +193,11 @@ export function initTimer() {
     statusMsg.innerText = `✅ Duration set to ${formatHMS(totalSeconds)}. Press START.`;
   }
 
-  // Attach event listeners
   setDurationBtn.addEventListener("click", setDuration);
   startBtn.addEventListener("click", startTimer);
   pauseBtn.addEventListener("click", pauseTimer);
   resetBtn.addEventListener("click", resetTimer);
 
-  // Initial state
   totalSeconds = 0;
   remainingSeconds = 0;
   startMoment = null;

@@ -1,12 +1,9 @@
 /* ----- CSS VARIABLES (consistent color palette) ----- */
 :root {
-  /* Primary colors from digital clock */
-  --color-hour: #ff2972; /* red/pink for hours */
-  --color-minute: #fee800; /* yellow for minutes */
-  --color-second: #04fc43; /* green for seconds */
-
-  /* Extended palette */
-  --color-accent: #ffb347; /* warm orange for active/hover states */
+  --color-hour: #ff2972;
+  --color-minute: #fee800;
+  --color-second: #04fc43;
+  --color-accent: #ffb347;
   --color-glow: #ff9f2e;
   --color-bg-dark: #2f363e;
   --color-bg-panel: #2f363e;
@@ -82,7 +79,7 @@ body {
   min-width: 280px;
 }
 
-/* analog clock */
+/* analog clock (default size) */
 .clock {
   position: relative;
   width: 280px;
@@ -98,8 +95,10 @@ body {
   justify-content: center;
   align-items: center;
   margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
 }
 
+/* analog clock responsive scaling */
 @media (min-width: 700px) {
   .clock {
     width: 340px;
@@ -110,6 +109,24 @@ body {
   .clock {
     width: 380px;
     height: 380px;
+  }
+}
+
+/* When in Classic mode (analog only), make analog clock even larger */
+.dashboard.analog-mode .clock-card .clock {
+  width: 420px;
+  height: 420px;
+}
+@media (min-width: 700px) {
+  .dashboard.analog-mode .clock-card .clock {
+    width: 480px;
+    height: 480px;
+  }
+}
+@media (min-width: 1000px) {
+  .dashboard.analog-mode .clock-card .clock {
+    width: 540px;
+    height: 540px;
   }
 }
 
@@ -141,6 +158,15 @@ body {
 @media (min-width: 700px) {
   .clock span b {
     font-size: 1.7rem;
+  }
+}
+/* Larger numbers for Classic mode */
+.dashboard.analog-mode .clock span b {
+  font-size: 2rem;
+}
+@media (min-width: 700px) {
+  .dashboard.analog-mode .clock span b {
+    font-size: 2.4rem;
   }
 }
 
@@ -192,7 +218,7 @@ body {
   box-shadow: 0 0 18px var(--clr);
 }
 
-/* digital clock */
+/* digital clock (default size) */
 #time {
   display: flex;
   padding: 0.5rem 1.2rem;
@@ -205,6 +231,7 @@ body {
     inset 5px 5px 20px var(--color-shadow-light),
     inset -5px -5px 15px var(--color-shadow-dark);
   background: var(--color-bg-panel);
+  transition: all 0.2s ease;
 }
 #time div {
   position: relative;
@@ -239,7 +266,87 @@ body {
   }
 }
 
-/* timer panel */
+/* When in Modern mode (digital only), make digital clock huge */
+.dashboard.digital-mode .clock-card #time {
+  padding: 1rem 2rem;
+  font-size: 3rem;
+  border-radius: 80px;
+}
+.dashboard.digital-mode .clock-card #time div {
+  width: 100px;
+  font-size: 3rem;
+}
+.dashboard.digital-mode .clock-card #time div:last-child {
+  font-size: 1.2rem;
+}
+@media (min-width: 700px) {
+  .dashboard.digital-mode .clock-card #time {
+    font-size: 4rem;
+    padding: 1.5rem 3rem;
+  }
+  .dashboard.digital-mode .clock-card #time div {
+    width: 130px;
+    font-size: 4rem;
+  }
+  .dashboard.digital-mode .clock-card #time div:last-child {
+    font-size: 1.5rem;
+  }
+}
+@media (min-width: 1000px) {
+  .dashboard.digital-mode .clock-card #time {
+    font-size: 5rem;
+    padding: 2rem 4rem;
+  }
+  .dashboard.digital-mode .clock-card #time div {
+    width: 160px;
+    font-size: 5rem;
+  }
+  .dashboard.digital-mode .clock-card #time div:last-child {
+    font-size: 1.8rem;
+  }
+}
+
+/* Standard mode (both clocks) – keep balanced, slightly larger than default */
+.dashboard.clock-mode .clock-card .clock {
+  width: 300px;
+  height: 300px;
+}
+.dashboard.clock-mode .clock-card #time {
+  font-size: 1.8rem;
+  padding: 0.7rem 1.5rem;
+}
+.dashboard.clock-mode .clock-card #time div {
+  width: 65px;
+}
+@media (min-width: 700px) {
+  .dashboard.clock-mode .clock-card .clock {
+    width: 360px;
+    height: 360px;
+  }
+  .dashboard.clock-mode .clock-card #time {
+    font-size: 2rem;
+  }
+  .dashboard.clock-mode .clock-card #time div {
+    width: 75px;
+  }
+}
+@media (min-width: 1000px) {
+  .dashboard.clock-mode .clock-card .clock {
+    width: 400px;
+    height: 400px;
+  }
+  .dashboard.clock-mode .clock-card #time {
+    font-size: 2.2rem;
+  }
+  .dashboard.clock-mode .clock-card #time div {
+    width: 85px;
+  }
+}
+
+/* Split View (both clocks + timer) – default sizes already defined, keep as is */
+/* No extra overrides needed */
+
+/* timer panel (unchanged) */
 .timer-panel {
   background: var(--color-bg-panel);
   border-radius: 2rem;
@@ -428,7 +535,8 @@ body {
   width: 100%;
   display: flex;
   justify-content: center;
-  gap: 0.8rem;
+  gap: 0.6rem;
+  flex-wrap: wrap;
   padding: 0.8rem 0 0.2rem;
   margin-top: auto;
 }
@@ -436,8 +544,7 @@ body {
 .mode-switch .fullscreen-btn {
   background: #3e4b55;
   border: none;
-  padding: 0.4rem 0;
-  width: 85px;
+  padding: 0.4rem 0.8rem;
   border-radius: 40px;
   font-family: "Poppins", system-ui, sans-serif;
   font-size: 0.75rem;
@@ -451,42 +558,52 @@ body {
 .mode-switch .view-option.active {
   background: var(--color-accent);
   color: #1e2a2f;
-  font-weight: 500;
 }
 .mode-switch .view-option:hover,
 .mode-switch .fullscreen-btn:hover {
   background: #5b6f7c;
   color: #ffffff;
 }
-.mode-switch .view-option.active:hover {
-  background: #ffa42b;
-  color: #1e2a2f;
-}
 .mode-switch .fullscreen-btn {
-  width: auto;
-  min-width: 85px;
-  padding: 0.4rem 0.8rem;
+  background: #3e4b55;
 }
 
-/* view visibility */
-.hide-clock .clock-card {
+/* visibility classes for clock card parts */
+.hide-analog .clock {
   display: none;
 }
+.hide-digital #time {
+  display: none;
+}
+
+/* view visibility for timer panel and clock card */
 .hide-timer .timer-panel {
   display: none;
 }
-.dashboard.hide-clock .main-content .timer-panel {
-  margin: 0 auto;
+/* when timer is hidden, the clock card expands */
+.dashboard.hide-timer .main-content .clock-card,
+.dashboard.analog-mode .main-content .clock-card,
+.dashboard.digital-mode .main-content .clock-card,
+.dashboard.clock-mode .main-content .clock-card {
   width: 100%;
   flex: 1;
 }
-.dashboard.hide-timer .main-content .clock-card {
-  margin: 0 auto;
+/* analog-mode and digital-mode and clock-mode also hide timer panel */
+.dashboard.analog-mode .main-content .timer-panel,
+.dashboard.digital-mode .main-content .timer-panel,
+.dashboard.clock-mode .main-content .timer-panel {
+  display: none;
+}
+/* timer-only mode hides clock card */
+.dashboard.timer-mode .main-content .clock-card {
+  display: none;
+}
+.dashboard.timer-mode .main-content .timer-panel {
   width: 100%;
   flex: 1;
 }
 
-/* Responsive */
+/* Responsive adjustments for smaller screens */
 @media (max-width: 800px) {
   .main-content {
     flex-direction: column;
@@ -496,26 +613,26 @@ body {
   .timer-panel {
     width: 100%;
   }
-  .mode-switch .view-option,
-  .mode-switch .fullscreen-btn {
+  /* Classic mode analog clock on mobile */
+  .dashboard.analog-mode .clock-card .clock {
+    width: 320px;
+    height: 320px;
+  }
+  /* Modern mode digital clock on mobile */
+  .dashboard.digital-mode .clock-card #time {
+    font-size: 2.5rem;
+    padding: 1rem 1.5rem;
+  }
+  .dashboard.digital-mode .clock-card #time div {
     width: 80px;
-    padding: 0.35rem 0;
-    font-size: 0.7rem;
+    font-size: 2.5rem;
   }
-  .mode-switch .fullscreen-btn {
-    width: auto;
-    min-width: 80px;
+  /* Standard mode on mobile */
+  .dashboard.clock-mode .clock-card .clock {
+    width: 260px;
+    height: 260px;
   }
-}
-@media (min-width: 801px) {
-  .main-content {
-    flex-direction: row;
-    align-items: stretch;
-  }
-  .clock-card,
-  .timer-panel {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  .dashboard.clock-mode .clock-card #time {
+    font-size: 1.4rem;
   }
 }
