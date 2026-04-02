@@ -1,16 +1,20 @@
-import { formatHMS } from "../utils/helpers.js";
+// js/modules/timer.js
+import { formatHMS, parseDuration } from "../utils/helpers.js";
 
 /**
- * Timer Module: manages countdown state, UI updates, and user interactions.
+ * Timer Module (Timestamp-based for accuracy)
+ * Manages countdown state, UI, and prevents drift during background throttling.
  */
-
 export function initTimer() {
-  let totalSeconds = 0;
-  let remainingSeconds = 0;
+  // Core state
+  let totalSeconds = 5400; // default 90 mins
+  let remainingSeconds = 5400;
   let timerInterval = null;
   let isRunning = false;
-  let startMoment = null;
+  let endTimestamp = null; // absolute time when timer should finish
+  let startMoment = null; // actual start time for display
 
+  // DOM elements
   const remainingDisplay = document.getElementById("remainingDisplay");
   const progressFill = document.getElementById("progressFill");
   const progressPercent = document.getElementById("progressPercent");
@@ -26,16 +30,24 @@ export function initTimer() {
   const pauseBtn = document.getElementById("pauseTimerBtn");
   const resetBtn = document.getElementById("resetTimerBtn");
 
+  // Helper: update UI based on current remainingSeconds
   function refreshUI() {
-    remainingDisplay.innerText = formatHMS(remainingSeconds);
+    if (remainingDisplay)
+      remainingDisplay.innerText = formatHMS(remainingSeconds);
     const percent =
       totalSeconds > 0 ? (remainingSeconds / totalSeconds) * 100 : 0;
     const clamped = Math.min(100, Math.max(0, percent));
-    progressFill.style.width = `${clamped}%`;
-    progressPercent.innerText = `${Math.round(clamped)}%`;
-    infoDuration.innerText =
-      totalSeconds > 0 ? formatHMS(totalSeconds) : "--:--:--";
+    if (progressFill) progressFill.style.width = `${clamped}%`;
+    if (progressPercent) progressPercent.innerText = `${Math.round(clamped)}%`;
+    if (infoDuration)
+      infoDuration.innerText =
+        totalSeconds > 0 ? formatHMS(totalSeconds) : "--:--:--";
 
+    // Update ARIA progress value
+    if (progressFill)
+      progressFill.setAttribute("aria-valuenow", Math.round(clamped));
+
+    // Start time display
     if (
       startMoment &&
       (isRunning || (!isRunning && remainingSeconds < totalSeconds))
@@ -49,6 +61,7 @@ export function initTimer() {
       infoStart.innerText = "--:--:--";
     }
 
+    // End time prediction
     if (
       remainingSeconds > 0 &&
       totalSeconds > 0 &&
@@ -66,55 +79,74 @@ export function initTimer() {
       infoEnd.innerText = "--:--:--";
     }
 
+    // Status message & button states
     if (remainingSeconds === 0 && totalSeconds > 0) {
       statusMsg.innerText = "⛔ Exam finished. Press RESET to start new.";
+      startBtn.disabled = true;
+      pauseBtn.disabled = true;
     } else if (isRunning) {
       statusMsg.innerText = "▶ Timer running — exam in progress";
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
     } else if (
       !isRunning &&
       remainingSeconds > 0 &&
       remainingSeconds < totalSeconds
     ) {
       statusMsg.innerText = "⏸ Paused — press START to resume";
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
     } else if (
       !isRunning &&
       totalSeconds > 0 &&
       remainingSeconds === totalSeconds
     ) {
       statusMsg.innerText = "✅ Ready. Press START to begin exam.";
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
     } else {
       statusMsg.innerText = "⚙️ Set duration above & start";
+      startBtn.disabled = totalSeconds === 0;
+      pauseBtn.disabled = true;
     }
 
-    if (isRunning) {
-      durationRow.classList.add("hidden");
-    } else {
-      durationRow.classList.remove("hidden");
-    }
-
-    if (remainingSeconds <= 0 && totalSeconds > 0 && timerInterval) {
-      stopTimer();
-    }
+    // Show/hide duration row and disable inputs while running
+    const disableWhileRunning = isRunning;
+    durationRow.classList.toggle("hidden", isRunning);
+    durationMins.disabled = disableWhileRunning;
+    durationSecs.disabled = disableWhileRunning;
+    setDurationBtn.disabled = disableWhileRunning;
   }
 
+  // Stop timer and clear interval
   function stopTimer() {
     if (timerInterval) {
       clearInterval(timerInterval);
       timerInterval = null;
     }
     isRunning = false;
+    endTimestamp = null;
     refreshUI();
   }
 
+  // Timer tick based on endTimestamp
   function tick() {
-    if (!isRunning) return;
-    if (remainingSeconds <= 0) {
-      stopTimer();
-      return;
+    if (!isRunning || !endTimestamp) return;
+    const now = Date.now();
+    let remaining = Math.max(0, Math.ceil((endTimestamp - now) / 1000));
+    if (remaining !== remainingSeconds) {
+      remainingSeconds = remaining;
+      refreshUI();
     }
-    remainingSeconds--;
-    refreshUI();
-    if (remainingSeconds === 0) stopTimer();
+    if (remainingSeconds <= 0) {
+      // Timer finished
+      stopTimer();
+      remainingSeconds = 0;
+      refreshUI();
+      // Optional: trigger finish effect (visual only)
+      statusMsg.innerText = "⏰ TIME'S UP! Exam completed.";
+      startBtn.disabled = true;
+    }
   }
 
   function startTimer() {
@@ -128,30 +160,28 @@ export function initTimer() {
     }
     if (isRunning) return;
 
-    if (!startMoment && remainingSeconds === totalSeconds && totalSeconds > 0) {
-      startMoment = new Date();
-    } else if (
-      !startMoment &&
-      remainingSeconds > 0 &&
-      remainingSeconds < totalSeconds
-    ) {
+    // Set start moment if fresh start
+    if (!startMoment || remainingSeconds === totalSeconds) {
       startMoment = new Date();
     }
 
-    if (!timerInterval) {
-      timerInterval = setInterval(tick, 1000);
-    }
+    // Set end timestamp based on current remaining
+    endTimestamp = Date.now() + remainingSeconds * 1000;
     isRunning = true;
+
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(tick, 200); // smoother progress updates
     refreshUI();
   }
 
   function pauseTimer() {
     if (!isRunning) return;
-    isRunning = false;
-    if (timerInterval) {
-      clearInterval(timerInterval);
-      timerInterval = null;
+    // Capture current remaining before clearing
+    if (endTimestamp) {
+      const now = Date.now();
+      remainingSeconds = Math.max(0, Math.ceil((endTimestamp - now) / 1000));
     }
+    stopTimer(); // stops interval, sets isRunning false, keeps remainingSeconds
     refreshUI();
   }
 
@@ -161,6 +191,7 @@ export function initTimer() {
       timerInterval = null;
     }
     isRunning = false;
+    endTimestamp = null;
     remainingSeconds = totalSeconds;
     startMoment = null;
     refreshUI();
@@ -171,14 +202,9 @@ export function initTimer() {
       statusMsg.innerText = "⛔ Pause timer before changing duration.";
       return;
     }
-    let mins = parseInt(durationMins.value, 10);
-    let secs = parseInt(durationSecs.value, 10);
-    if (isNaN(mins)) mins = 0;
-    if (isNaN(secs)) secs = 0;
-    secs = Math.min(59, Math.max(0, secs));
-    mins = Math.min(720, Math.max(0, mins));
-    let newTotal = mins * 60 + secs;
-    if (newTotal <= 0) newTotal = 60;
+    let mins = parseInt(durationMins.value, 10) || 0;
+    let secs = parseInt(durationSecs.value, 10) || 0;
+    const newTotal = parseDuration(mins, secs);
     totalSeconds = newTotal;
     remainingSeconds = totalSeconds;
     startMoment = null;
@@ -187,21 +213,24 @@ export function initTimer() {
       timerInterval = null;
     }
     isRunning = false;
+    endTimestamp = null;
     refreshUI();
+    // Sync input fields
     durationMins.value = Math.floor(totalSeconds / 60);
     durationSecs.value = totalSeconds % 60;
     statusMsg.innerText = `✅ Duration set to ${formatHMS(totalSeconds)}. Press START.`;
   }
 
+  // Event binding
   setDurationBtn.addEventListener("click", setDuration);
   startBtn.addEventListener("click", startTimer);
   pauseBtn.addEventListener("click", pauseTimer);
   resetBtn.addEventListener("click", resetTimer);
 
-  totalSeconds = 0;
-  remainingSeconds = 0;
-  startMoment = null;
-  refreshUI();
+  // Initial setup
+  totalSeconds = 5400;
+  remainingSeconds = 5400;
   durationMins.value = 90;
   durationSecs.value = 0;
+  refreshUI();
 }

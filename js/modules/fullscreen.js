@@ -1,5 +1,6 @@
+// js/modules/fullscreen.js
 /**
- * Fullscreen Module: toggles full‑screen mode using the Fullscreen API.
+ * Fullscreen Module: cross-browser fullscreen toggle with dynamic button text
  */
 export function initFullscreen() {
   const fullscreenBtn = document.getElementById("fullscreenBtn");
@@ -15,8 +16,6 @@ export function initFullscreen() {
     }
   }
 
-  fullscreenBtn.addEventListener("click", toggleFullscreen);
-
   function updateButtonText() {
     if (document.fullscreenElement) {
       fullscreenBtn.innerHTML = "✖ Exit";
@@ -27,6 +26,7 @@ export function initFullscreen() {
     }
   }
 
+  fullscreenBtn.addEventListener("click", toggleFullscreen);
   document.addEventListener("fullscreenchange", updateButtonText);
   updateButtonText();
 }

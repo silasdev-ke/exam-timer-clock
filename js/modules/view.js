@@ -1,13 +1,12 @@
+// js/modules/view.js
 /**
- * View Module: handles switching between Classic (analog only), Modern (digital only),
- * Standard (both clocks, no timer), Split View (clocks + timer), and Exam Focus (timer only).
+ * View Module: handles layout modes (Classic, Modern, Standard, Split, Exam Focus)
  */
 export function initView() {
   const dashboard = document.getElementById("dashboard");
   const clockCard = document.getElementById("clockCard");
   const viewButtons = document.querySelectorAll(".mode-switch .view-option");
 
-  // Map button data-view values to internal mode names
   const modeMap = {
     classic: "analog",
     modern: "digital",
@@ -20,15 +19,13 @@ export function initView() {
     const mode = modeMap[viewValue];
     if (!mode) return;
 
-    // Remove all mode classes from dashboard
+    // Reset all dashboard mode classes
     dashboard.classList.remove(
-      "hide-timer",
       "analog-mode",
       "digital-mode",
       "clock-mode",
       "timer-mode",
     );
-    // Remove internal visibility classes from clock card
     if (clockCard) {
       clockCard.classList.remove("hide-analog", "hide-digital");
     }
@@ -44,10 +41,9 @@ export function initView() {
         break;
       case "clock":
         dashboard.classList.add("clock-mode");
-        // Both analog and digital remain visible
         break;
       case "both":
-        // Split View – no extra dashboard classes
+        // Split view: default, no extra class
         break;
       case "timer":
         dashboard.classList.add("timer-mode");
@@ -67,7 +63,6 @@ export function initView() {
     });
   }
 
-  // Add event listeners to all view buttons (skip fullscreen button which has no data-view)
   viewButtons.forEach((btn) => {
     const view = btn.getAttribute("data-view");
     if (view) {
@@ -75,6 +70,6 @@ export function initView() {
     }
   });
 
-  // Default view: split (both clocks + timer)
+  // Default: Split View
   setView("split");
 }

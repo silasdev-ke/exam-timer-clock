@@ -4,15 +4,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="description" content="Professional exam timer with analog/digital clock and multiple view modes">
   <title>Proctor Clock | Professional Exam Timer</title>
   <link rel="stylesheet" href="css/styles.css">
+  <!-- Preconnect to fonts for performance -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
   <div class="dashboard" id="dashboard">
     <div class="main-content">
       <div class="clock-card" id="clockCard">
-        <div class="clock" id="analogClock">
+        <div class="clock" id="analogClock" aria-label="Analog clock">
           <div class="circle" id="sc" style="--clr:#04fc43;"><i></i></div>
           <div class="circle circle2" id="mn" style="--clr:#fee800;"><i></i></div>
           <div class="circle circle3" id="hr" style="--clr:#ff2972;"><i></i></div>
@@ -23,7 +26,7 @@
           <span style="--i:9;"><b>9</b></span> <span style="--i:10;"><b>10</b></span>
           <span style="--i:11;"><b>11</b></span> <span style="--i:12;"><b>12</b></span>
         </div>
-        <div id="time">
+        <div id="time" aria-label="Digital clock">
           <div id="hours" style="--clr:#ff2972;">00</div>
           <div id="minutes" style="--clr:#fee800;">00</div>
           <div id="seconds" style="--clr:#04fc43;">00</div>
@@ -31,14 +34,16 @@
         </div>
       </div>
 
-      <div class="timer-panel">
+      <div class="timer-panel" role="region" aria-label="Exam timer controls">
         <div class="timer-header">
           <h2>📋 EXAM CONTROL</h2>
         </div>
-        <div class="big-remaining"><span id="remainingDisplay">00:00:00</span></div>
+        <div class="big-remaining">
+          <span id="remainingDisplay" aria-live="polite">00:00:00</span>
+        </div>
         <div class="progress-wrapper">
           <div class="progress-bar-bg">
-            <div class="progress-fill" id="progressFill"></div>
+            <div class="progress-fill" id="progressFill" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <div class="progress-percent" id="progressPercent">0%</div>
         </div>
@@ -57,8 +62,8 @@
           </div>
         </div>
         <div class="duration-row" id="durationRow">
-          <div class="dur-group"><label>min</label><input type="number" id="durationMins" class="dur-input" value="90" min="1" max="720"></div>
-          <div class="dur-group"><label>sec</label><input type="number" id="durationSecs" class="dur-input" value="0" min="0" max="59"></div>
+          <div class="dur-group"><label for="durationMins">min</label><input type="number" id="durationMins" class="dur-input" value="90" min="1" max="720" step="1"></div>
+          <div class="dur-group"><label for="durationSecs">sec</label><input type="number" id="durationSecs" class="dur-input" value="0" min="0" max="59" step="1"></div>
           <button id="setDurationBtn" class="btn btn-primary">⚡ Update</button>
         </div>
         <div class="action-buttons">
@@ -66,16 +71,16 @@
           <button id="pauseTimerBtn" class="btn btn-warning">⏸ PAUSE</button>
           <button id="resetTimerBtn" class="btn btn-danger">⟳ RESET</button>
         </div>
-        <div class="status-msg" id="statusMsg">⚙️ Ready to begin</div>
+        <div class="status-msg" id="statusMsg" role="status" aria-live="polite">⚙️ Ready to begin</div>
       </div>
     </div>
 
     <div class="mode-switch">
-      <button class="view-option" data-view="classic">Classic</button>
-      <button class="view-option" data-view="modern">Modern</button>
-      <button class="view-option" data-view="standard">Standard</button>
-      <button class="view-option active" data-view="split">Split View</button>
-      <button class="view-option" data-view="exam">Exam Focus</button>
+      <button class="view-option" data-view="classic" aria-label="Classic mode: analog clock only">Classic</button>
+      <button class="view-option" data-view="modern" aria-label="Modern mode: digital clock only">Modern</button>
+      <button class="view-option" data-view="standard" aria-label="Standard mode: both clocks">Standard</button>
+      <button class="view-option active" data-view="split" aria-label="Split view: clocks and timer">Split View</button>
+      <button class="view-option" data-view="exam" aria-label="Exam focus: timer only">Exam Focus</button>
       <button class="fullscreen-btn" id="fullscreenBtn" title="Toggle full screen">⛶ Fullscreen</button>
     </div>
   </div>

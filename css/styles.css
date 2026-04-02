@@ -13,6 +13,7 @@
   --color-progress-bg: #2a353d;
   --color-shadow-dark: rgba(0, 0, 0, 0.75);
   --color-shadow-light: rgba(255, 255, 255, 0.2);
+  --transition-default: all 0.2s ease;
 }
 
 /* ----- RESET & GLOBAL ----- */
@@ -25,7 +26,7 @@
 body {
   background: var(--color-bg-dark);
   font-family:
-    "Poppins",
+    "Inter",
     system-ui,
     -apple-system,
     "Segoe UI",
@@ -77,6 +78,7 @@ body {
   padding: 2rem 2rem 2rem;
   flex: 1.2;
   min-width: 280px;
+  transition: var(--transition-default);
 }
 
 /* analog clock (default size) */
@@ -95,7 +97,7 @@ body {
   justify-content: center;
   align-items: center;
   margin-bottom: 1.5rem;
-  transition: all 0.2s ease;
+  transition: var(--transition-default);
 }
 
 /* analog clock responsive scaling */
@@ -160,7 +162,6 @@ body {
     font-size: 1.7rem;
   }
 }
-/* Larger numbers for Classic mode */
 .dashboard.analog-mode .clock span b {
   font-size: 2rem;
 }
@@ -231,7 +232,7 @@ body {
     inset 5px 5px 20px var(--color-shadow-light),
     inset -5px -5px 15px var(--color-shadow-dark);
   background: var(--color-bg-panel);
-  transition: all 0.2s ease;
+  transition: var(--transition-default);
 }
 #time div {
   position: relative;
@@ -266,7 +267,7 @@ body {
   }
 }
 
-/* When in Modern mode (digital only), make digital clock huge */
+/* Modern mode (digital only) */
 .dashboard.digital-mode .clock-card #time {
   padding: 1rem 2rem;
   font-size: 3rem;
@@ -306,7 +307,7 @@ body {
   }
 }
 
-/* Standard mode (both clocks) – keep balanced, slightly larger than default */
+/* Standard mode (both clocks) */
 .dashboard.clock-mode .clock-card .clock {
   width: 300px;
   height: 300px;
@@ -343,10 +344,7 @@ body {
   }
 }
 
-/* Split View (both clocks + timer) – default sizes already defined, keep as is */
-/* No extra overrides needed */
-
-/* timer panel (unchanged) */
+/* Timer panel */
 .timer-panel {
   background: var(--color-bg-panel);
   border-radius: 2rem;
@@ -411,7 +409,7 @@ body {
   height: 100%;
   background: linear-gradient(90deg, var(--color-hour), var(--color-minute));
   border-radius: 30px;
-  transition: width 0.2s;
+  transition: width 0.2s linear;
 }
 .progress-percent {
   text-align: right;
@@ -460,7 +458,7 @@ body {
   border-radius: 3rem;
   padding: 0.5rem 1rem;
   margin: 1rem 0;
-  transition: all 0.2s;
+  transition: var(--transition-default);
 }
 .duration-row.hidden {
   display: none;
@@ -488,6 +486,10 @@ body {
   font-weight: 600;
   font-family: monospace;
 }
+.dur-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .action-buttons {
   display: flex;
   gap: 1rem;
@@ -500,10 +502,20 @@ body {
   border-radius: 2rem;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.1s linear;
+  transition:
+    transform 0.1s ease,
+    opacity 0.2s;
   background: #2f414b;
   color: #f3edd8;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+.btn:active {
+  transform: scale(0.96);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 .btn-primary {
   background: var(--color-hour);
@@ -516,9 +528,6 @@ body {
 .btn-danger {
   background: var(--color-second);
   color: #1e2a2f;
-}
-.btn:active {
-  transform: scale(0.96);
 }
 .status-msg {
   background: #0a1219;
@@ -546,14 +555,13 @@ body {
   border: none;
   padding: 0.4rem 0.8rem;
   border-radius: 40px;
-  font-family: "Poppins", system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   font-size: 0.75rem;
   font-weight: 500;
   color: var(--color-text-light);
   text-align: center;
   cursor: pointer;
   transition: all 0.1s ease;
-  box-shadow: none;
 }
 .mode-switch .view-option.active {
   background: var(--color-accent);
@@ -563,9 +571,6 @@ body {
 .mode-switch .fullscreen-btn:hover {
   background: #5b6f7c;
   color: #ffffff;
-}
-.mode-switch .fullscreen-btn {
-  background: #3e4b55;
 }
 
 /* visibility classes for clock card parts */
@@ -577,24 +582,11 @@ body {
 }
 
 /* view visibility for timer panel and clock card */
-.hide-timer .timer-panel {
-  display: none;
-}
-/* when timer is hidden, the clock card expands */
-.dashboard.hide-timer .main-content .clock-card,
-.dashboard.analog-mode .main-content .clock-card,
-.dashboard.digital-mode .main-content .clock-card,
-.dashboard.clock-mode .main-content .clock-card {
-  width: 100%;
-  flex: 1;
-}
-/* analog-mode and digital-mode and clock-mode also hide timer panel */
 .dashboard.analog-mode .main-content .timer-panel,
 .dashboard.digital-mode .main-content .timer-panel,
 .dashboard.clock-mode .main-content .timer-panel {
   display: none;
 }
-/* timer-only mode hides clock card */
 .dashboard.timer-mode .main-content .clock-card {
   display: none;
 }
@@ -603,22 +595,16 @@ body {
   flex: 1;
 }
 
-/* Responsive adjustments for smaller screens */
+/* Responsive adjustments */
 @media (max-width: 800px) {
   .main-content {
     flex-direction: column;
     gap: 1.5rem;
   }
-  .clock-card,
-  .timer-panel {
-    width: 100%;
-  }
-  /* Classic mode analog clock on mobile */
   .dashboard.analog-mode .clock-card .clock {
     width: 320px;
     height: 320px;
   }
-  /* Modern mode digital clock on mobile */
   .dashboard.digital-mode .clock-card #time {
     font-size: 2.5rem;
     padding: 1rem 1.5rem;
@@ -627,7 +613,6 @@ body {
     width: 80px;
     font-size: 2.5rem;
   }
-  /* Standard mode on mobile */
   .dashboard.clock-mode .clock-card .clock {
     width: 260px;
     height: 260px;
